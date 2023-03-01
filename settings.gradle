@@ -10,6 +10,15 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+        maven { url 'https://jitpack.io' }
+
+        def userName = System.getProperty("user.name")
+        if (userName == "angcyo") {
+            maven { url "E:/AndroidProjects/maven" }
+        } else {
+            maven { url "https://gitcode.net/angcyo/maven/-/raw/hingin" }
+        }
     }
 }
 rootProject.name = "BitmapHandleDemo"
