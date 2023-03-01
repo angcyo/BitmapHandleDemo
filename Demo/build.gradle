@@ -50,4 +50,6 @@ dependencies {
     implementation 'com.angcyo:core:hingin-SNAPSHOT'
 
     implementation project(":BitmapHandle")
+
+    //implementation 'com.github.angcyo:BitmapHandleDemo:0.2'
 }
