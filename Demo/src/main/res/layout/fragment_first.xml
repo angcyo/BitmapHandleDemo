@@ -4,32 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#40000000"
     tools:context=".FirstFragment">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:background="#40000000"
         android:scaleType="centerInside"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textview_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_first_fragment"
+        android:text="请选择图片..."
         android:textColor="@color/error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/imageView" />
 
-    <Button
-        android:id="@+id/button_first"
-        android:layout_width="wrap_content"
+    <com.angcyo.widget.layout.DslFlowLayout
+        android:id="@+id/control_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:padding="@dimen/lib_hdpi"
+        app:layout_constraintTop_toBottomOf="@id/textview_first"
+        app:r_flow_item_horizontal_space="@dimen/lib_xhdpi"
+        app:r_flow_item_vertical_space="@dimen/lib_xhdpi">
+
+        <Button
+            android:id="@+id/bw_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="黑白画" />
+
+        <Button
+            android:id="@+id/gray_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="灰度" />
+
+    </com.angcyo.widget.layout.DslFlowLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
