@@ -46,32 +46,39 @@ jobject generateBitmap(JNIEnv *env, AndroidBitmapInfo info) {
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_angcyo_bitmap_handle_BitmapHandle_toBlackWhiteHandle(JNIEnv *env, jobject thiz,
-                                                              jobject bitmap, jint threshold,
+                                                              jobject bitmap,
+                                                              jobject result,
+                                                              jint threshold,
                                                               jboolean invert,
                                                               jint threshold_channel_color,
                                                               jint alpha_bg_color,
                                                               jint alpha_threshold) {
     //原来的图片信息
     AndroidBitmapInfo info;
-    int result;
-    result = AndroidBitmap_getInfo(env, bitmap, &info);//获取图片信息
+    int ref;
+    ref = AndroidBitmap_getInfo(env, bitmap, &info);//获取图片信息
 
-    if (result != 0) {
-        LOGE("获取图片信息失败[error=%d]", result);
+    if (ref != 0) {
+        LOGE("获取图片信息失败[error=%d]", ref);
         return nullptr;
     } else {
         //LOGE("w:%d h:%d", info.width, info.height);
 
         // 读取 bitmap 的像素内容到 native 内存
         void *bitmapPixels;
-        if ((result = AndroidBitmap_lockPixels(env, bitmap, &bitmapPixels)) != 0) {
-            LOGE("获取图片像素失败[error=%d]", result);
+        if ((ref = AndroidBitmap_lockPixels(env, bitmap, &bitmapPixels)) != 0) {
+            LOGE("获取图片像素失败[error=%d]", ref);
+            return nullptr;
+        }
+        // 读取返回的 bitmap 的像素内容到 native 内存
+        void *resultPixels;
+        if ((ref = AndroidBitmap_lockPixels(env, result, &resultPixels)) != 0) {
+            LOGE("获取图片像素失败[error=%d]", ref);
             return nullptr;
         }
         // 创建一个新的数组指针，把这个新的数组指针填充像素值
         uint32_t width = info.width;
         uint32_t height = info.height;
-        uint32_t *newBitmapPixels = new uint32_t[width * height];
         int index = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -89,7 +96,7 @@ Java_com_angcyo_bitmap_handle_BitmapHandle_toBlackWhiteHandle(JNIEnv *env, jobje
                 }
 
                 if (pixel == 0) {
-                    newBitmapPixels[index] = 0;
+                    ((uint32_t *) resultPixels)[index] = 0;
                 } else {
                     switch ((uint32_t) threshold_channel_color) {
                         case 0xffff0000: //Color.RED
@@ -125,27 +132,85 @@ Java_com_angcyo_bitmap_handle_BitmapHandle_toBlackWhiteHandle(JNIEnv *env, jobje
 
                     //LOGW("pixel1:%d %d %d %d", alpha << 24, pixel << 16, pixel << 8, pixel);
                     uint32_t color = (alpha << 24) | (pixel << 16) | (pixel << 8) | pixel;
-                    newBitmapPixels[index] = color;
+                    ((uint32_t *) resultPixels)[index] = color;
 
                     //LOGW("pixel2:%d %d %d %d", alpha, color);
                 }
                 index++;
             }
         }
-
-        jobject newBitmap = generateBitmap(env, info);
-        void *resultBitmapPixels;
-        if ((result = AndroidBitmap_lockPixels(env, newBitmap, &resultBitmapPixels)) != 0) {
-            LOGE("获取图片像素失败[error=%d]", result);
-            return nullptr;
-        }
-        int pixelsCount = width * height;
-        memcpy((uint32_t *) resultBitmapPixels, newBitmapPixels, sizeof(uint32_t) * pixelsCount);
-        AndroidBitmap_unlockPixels(env, newBitmap);
-        return newBitmap;
+        AndroidBitmap_unlockPixels(env, bitmap);
+        AndroidBitmap_unlockPixels(env, result);
     }
-
-    return nullptr;
+    return result;
 }
 
 //endregion ---method---
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_angcyo_bitmap_handle_BitmapHandle_toGrayHandle(JNIEnv *env, jobject thiz,
+                                                        jobject bitmap,
+                                                        jobject result,
+                                                        jboolean invert,
+                                                        jfloat contrast,
+                                                        jfloat brightness,
+                                                        jint alpha_bg_color,
+                                                        jint alpha_threshold) {
+//原来的图片信息
+    AndroidBitmapInfo info;
+    int ref;
+    ref = AndroidBitmap_getInfo(env, bitmap, &info);//获取图片信息
+
+    if (ref != 0) {
+        LOGE("获取图片信息失败[error=%d]", ref);
+        return nullptr;
+    } else {
+        //LOGE("w:%d h:%d", info.width, info.height);
+
+        // 读取 bitmap 的像素内容到 native 内存
+        void *bitmapPixels;
+        if ((ref = AndroidBitmap_lockPixels(env, bitmap, &bitmapPixels)) != 0) {
+            LOGE("获取图片像素失败[error=%d]", ref);
+            return nullptr;
+        }
+        // 读取返回的 bitmap 的像素内容到 native 内存
+        void *resultPixels;
+        if ((ref = AndroidBitmap_lockPixels(env, result, &resultPixels)) != 0) {
+            LOGE("获取图片像素失败[error=%d]", ref);
+            return nullptr;
+        }
+        // 创建一个新的数组指针，把这个新的数组指针填充像素值
+        uint32_t width = info.width;
+        uint32_t height = info.height;
+        int index = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                uint32_t pixel = ((uint32_t *) bitmapPixels)[index];
+                //newBitmapPixels[width * y + x] = pixel;
+
+                uint8_t alpha = (pixel >> 24) & 0xff;
+                uint8_t red = (pixel >> 16) & 0xff;
+                uint8_t green = (pixel >> 8) & 0xff;
+                uint8_t blue = pixel & 0xff;
+
+                if (alpha < alpha_threshold) {
+                    //透明颜色, 则使用alpha_bg_color颜色代替
+                    ((uint32_t *) resultPixels)[index] = alpha_bg_color;
+                } else {
+                    //非透明
+                    uint8_t gray = (red + green + blue) / 3;//灰度值
+                    gray = (contrast + 1) * gray + brightness * 255;//亮度 对比度
+                    if (invert) {
+                        gray = 255 - gray;
+                    }
+                    uint32_t color = (alpha << 24) | (gray << 16) | (gray << 8) | gray;
+                    ((uint32_t *) resultPixels)[index] = color;
+                }
+                index++;
+            }
+        }
+        AndroidBitmap_unlockPixels(env, bitmap);
+        AndroidBitmap_unlockPixels(env, result);
+    }
+    return result;
+}

@@ -63,7 +63,7 @@ class FirstFragment : Fragment() {
 
         binding.grayButton.setOnClickListener {
             wrapAction { bitmap ->
-                BitmapHandle.toBlackWhiteHandle(bitmap)
+                BitmapHandle.toGrayHandle(bitmap)
             }
         }
     }
