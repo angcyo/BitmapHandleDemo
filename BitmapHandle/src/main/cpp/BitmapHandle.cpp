@@ -57,6 +57,21 @@ jobject createBitmap(JNIEnv *env, jobject source, int x, int y, int width, int h
     return newBitmap;
 }
 
+/**当前元素是否在数组中*/
+jboolean isInIntArray(JNIEnv *env, uint32_t element, jintArray array) {
+    jboolean result = false;
+    int length = env->GetArrayLength(array);
+    jint *e = env->GetIntArrayElements(array, nullptr);
+    for (int i = 0; i < length; ++i) {
+        if (e[i] == element) {
+            result = true;
+            break;
+        }
+    }
+    env->ReleaseIntArrayElements(array, e, JNI_ABORT);
+    return result;
+}
+
 /**判断当前的颜色[color], 是否是需要剔除的颜色*/
 jboolean isTrimColor(JNIEnv *env, uint32_t color,
                      jint alpha_threshold,
@@ -75,21 +90,6 @@ jboolean isTrimColor(JNIEnv *env, uint32_t color,
         return true;
     }
     return false;
-}
-
-/**当前元素是否在数组中*/
-jboolean isInIntArray(JNIEnv *env, uint32_t element, jintArray array) {
-    jboolean result = false;
-    int length = env->GetArrayLength(array);
-    jint *e = env->GetIntArrayElements(array, nullptr);
-    for (int i = 0; i < length; ++i) {
-        if (e[i] == element) {
-            result = true;
-            break;
-        }
-    }
-    env->ReleaseIntArrayElements(array, e, JNI_ABORT);
-    return result;
 }
 
 //endregion ---init---
