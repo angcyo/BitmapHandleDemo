@@ -46,6 +46,12 @@
             android:layout_height="wrap_content"
             android:text="灰度" />
 
+        <Button
+            android:id="@+id/trim_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自动裁边" />
+
     </com.angcyo.widget.layout.DslFlowLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -66,6 +66,12 @@ class FirstFragment : Fragment() {
                 BitmapHandle.toGrayHandle(bitmap)
             }
         }
+
+        binding.trimButton.setOnClickListener {
+            wrapAction { bitmap ->
+                BitmapHandle.trimEdgeColor(bitmap)
+            }
+        }
     }
 
     override fun onDestroyView() {

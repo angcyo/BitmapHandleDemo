@@ -55,4 +55,21 @@ object BitmapHandle {
         alphaBgColor: Int = Color.TRANSPARENT,
         alphaThreshold: Int = 8
     ): Bitmap?
+
+    /**
+     * 逐行扫描 清除边界空白, 裁边之前建议黑白画处理
+     *
+     * [alphaThreshold] 透明值小于等于这个值时, 剔除
+     * [grayThreshold]  灰度值大于等于这个值时, 剔除
+     * [trimColors] 额外需要移除的边界颜色值集合
+     * [margin] 边距留多少个像素, 大于0有效
+     * @return 清除边界后的Bitmap
+     */
+    external fun trimEdgeColor(
+        bitmap: Bitmap,
+        grayThreshold: Int = 250,
+        alphaThreshold: Int = 8,
+        trimColors: IntArray = intArrayOf(Color.TRANSPARENT),
+        margin: Int = 0
+    ): Bitmap?
 }
