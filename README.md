@@ -22,7 +22,7 @@ allprojects {
 
 ```gradle
 dependencies {
-    implementation 'com.github.angcyo:BitmapHandleDemo:0.2'
+    implementation 'com.github.angcyo:BitmapHandleDemo:0.3'
 }
 ```
 
